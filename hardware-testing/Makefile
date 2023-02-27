@@ -80,6 +80,7 @@ test-integration:
 	$(python) -m hardware_testing.examples.plunger_ot3 --simulate
 	$(python) -m hardware_testing.examples.capacitive_probe_ot3 --simulate
 	$(python) -m hardware_testing.scripts.bowtie_ot3 --simulate
+	$(python) -m hardware_testing.scripts.xy_calibration_ot3 --mount left --simulate
 
 .PHONY: lint
 lint:
