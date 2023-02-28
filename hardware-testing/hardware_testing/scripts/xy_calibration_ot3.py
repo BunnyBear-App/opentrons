@@ -56,12 +56,15 @@ def _calculate_attitude(expected: List[Point], actual: List[Point]) -> AttitudeM
     assert len(expected) == 3
     e = _tuplefy_cal_point_dicts(expected)
     a = _tuplefy_cal_point_dicts(actual)
-    return linal.solve_attitude(e, a)
+    attitude = linal.solve_attitude(e, a)
+    # NOTE: inverse b/c firmware coordinates are inverse of deck coordinates
+    # FIXME: replace with eventual API implementation
+    attitude_inverse = [[m * -1.0 for m in n] for n in attitude]
+    return attitude_inverse
 
 
 async def _find_slot(api: OT3API, mount: OT3Mount, expected: Point) -> Point:
     print(f"Expected: {expected}")
-    await api.add_tip(mount, tip_length=helpers_ot3.CALIBRATION_PROBE_EVT.length)
     if not api.is_simulator:
         z_height = await find_deck_height(api, mount, expected)
         actual = await find_slot_center_linear(
@@ -95,6 +98,9 @@ async def _main(is_simulating: bool, mount: OT3Mount, erase: bool = False) -> No
         pipette_left="p50_single_v3.3",
         pipette_right="p1000_multi_v3.3",
     )
+    if not api.is_simulator:
+        input("attach probe, then press ENTER")
+    await api.add_tip(mount, tip_length=helpers_ot3.CALIBRATION_PROBE_EVT.length)
     print(api.config.deck_transform)
 
     # run using default attitude matrix
@@ -105,12 +111,13 @@ async def _main(is_simulating: bool, mount: OT3Mount, erase: bool = False) -> No
     if erase and not api.is_simulator:
         save_robot_settings(api.config)
 
-    # probe slots, and calculate new attitude matrix
+    # probe slots
     await api.home()
     actual_12 = await _find_slot(api, mount, EXPECTED_POINTS[12])
     actual_3 = await _find_slot(api, mount, actual_12 + SLOT_12_TO_SLOT_3)
     actual_1 = await _find_slot(api, mount, actual_3 + SLOT_3_TO_SLOT_1)
 
+    # calculate new attitude matrix
     expected = [EXPECTED_POINTS[1], EXPECTED_POINTS[3], EXPECTED_POINTS[12]]
     actual = [actual_1, actual_3, actual_12]
     try:
