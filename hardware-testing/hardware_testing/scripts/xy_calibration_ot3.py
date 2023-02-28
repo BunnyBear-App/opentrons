@@ -66,13 +66,14 @@ def _calculate_attitude(expected: List[Point], actual: List[Point]) -> AttitudeM
 async def _find_slot(api: OT3API, mount: OT3Mount, expected: Point) -> Point:
     print(f"Expected: {expected}")
     if not api.is_simulator:
+        pos = await api.gantry_position(mount)
+        await api.move_to(mount, pos._replace(z=max(pos.z, 100)))
         z_height = await find_deck_height(api, mount, expected)
         actual = await find_slot_center_linear(
             api, mount, expected._replace(z=z_height)
         )
     else:
         actual = expected + Point(x=random(), y=random(), z=random())
-    await api.remove_tip(mount)
     print(f"Actual: {actual}")
     return actual
 
