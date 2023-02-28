@@ -4,11 +4,14 @@ import {
   COLORS,
   TEXT_TRANSFORM_CAPITALIZE,
   SPACING,
+  TYPOGRAPHY,
 } from '@opentrons/components'
 import { NINETY_SIX_CHANNEL } from '@opentrons/shared-data'
 import { usePipettesQuery } from '@opentrons/react-api-client'
 import { PrimaryButton, SecondaryButton } from '../../atoms/buttons'
 import { SimpleWizardBody } from '../../molecules/SimpleWizardBody'
+import { SmallButton } from '../../atoms/buttons/ODD'
+import { StyledText } from '../../atoms/text'
 import { FLOWS } from './constants'
 import type { PipetteWizardStepProps } from './types'
 
@@ -28,6 +31,7 @@ export const Results = (props: ResultsProps): JSX.Element => {
     currentStepIndex,
     totalStepCount,
     selectedPipette,
+    isOnDevice,
   } = props
   const { t } = useTranslation(['pipette_wizard_flows', 'shared'])
   const {
@@ -97,7 +101,21 @@ export const Results = (props: ResultsProps): JSX.Element => {
       proceed()
     }
   }
-  let button: JSX.Element = (
+  let button: JSX.Element = isOnDevice ? (
+    <SmallButton
+      textTransform={TEXT_TRANSFORM_CAPITALIZE}
+      onClick={handleProceed}
+      aria-label="Results_exit_isOnDevice"
+    >
+      <StyledText
+        fontSize="1.375rem"
+        fontWeight={TYPOGRAPHY.fontWeightSemiBold}
+        padding={SPACING.spacing4}
+      >
+        {buttonText}
+      </StyledText>
+    </SmallButton>
+  ) : (
     <PrimaryButton
       textTransform={TEXT_TRANSFORM_CAPITALIZE}
       onClick={handleProceed}
@@ -109,7 +127,21 @@ export const Results = (props: ResultsProps): JSX.Element => {
 
   if (!isSuccess && (flowType === FLOWS.ATTACH || flowType === FLOWS.DETACH)) {
     subHeader = numberOfTryAgains > 2 ? t('something_seems_wrong') : undefined
-    button = (
+    button = isOnDevice ? (
+      <SmallButton
+        onClick={handleTryAgain}
+        disabled={isPending}
+        aria-label="Results_tryAgain_onDevice"
+      >
+        <StyledText
+          fontSize="1.375rem"
+          fontWeight={TYPOGRAPHY.fontWeightSemiBold}
+          padding={SPACING.spacing4}
+        >
+          {t(flowType === FLOWS.ATTACH ? 'try_again' : 'attach_and_retry')}
+        </StyledText>
+      </SmallButton>
+    ) : (
       <>
         <SecondaryButton
           onClick={handleCleanUpAndClose}
@@ -125,9 +157,7 @@ export const Results = (props: ResultsProps): JSX.Element => {
           disabled={isPending}
           aria-label="Results_tryAgain"
         >
-          {t(
-            flowType === FLOWS.ATTACH ? 'detach_and_retry' : 'attach_and_retry'
-          )}
+          {t(flowType === FLOWS.ATTACH ? 'try_again' : 'attach_and_retry')}
         </PrimaryButton>
       </>
     )
