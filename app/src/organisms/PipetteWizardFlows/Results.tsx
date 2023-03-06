@@ -4,14 +4,12 @@ import {
   COLORS,
   TEXT_TRANSFORM_CAPITALIZE,
   SPACING,
-  TYPOGRAPHY,
 } from '@opentrons/components'
 import { NINETY_SIX_CHANNEL } from '@opentrons/shared-data'
 import { usePipettesQuery } from '@opentrons/react-api-client'
 import { PrimaryButton, SecondaryButton } from '../../atoms/buttons'
 import { SimpleWizardBody } from '../../molecules/SimpleWizardBody'
-import { SmallButton } from '../../atoms/buttons/ODD'
-import { StyledText } from '../../atoms/text'
+import { SmallButton } from '../../atoms/buttons/ODD/SmallButton'
 import { FLOWS } from './constants'
 import type { PipetteWizardStepProps } from './types'
 
@@ -106,15 +104,9 @@ export const Results = (props: ResultsProps): JSX.Element => {
       textTransform={TEXT_TRANSFORM_CAPITALIZE}
       onClick={handleProceed}
       aria-label="Results_exit_isOnDevice"
-    >
-      <StyledText
-        fontSize="1.375rem"
-        fontWeight={TYPOGRAPHY.fontWeightSemiBold}
-        padding={SPACING.spacing4}
-      >
-        {buttonText}
-      </StyledText>
-    </SmallButton>
+      buttonText={buttonText}
+      buttonType="default"
+    />
   ) : (
     <PrimaryButton
       textTransform={TEXT_TRANSFORM_CAPITALIZE}
@@ -132,15 +124,11 @@ export const Results = (props: ResultsProps): JSX.Element => {
         onClick={handleTryAgain}
         disabled={isPending}
         aria-label="Results_tryAgain_onDevice"
-      >
-        <StyledText
-          fontSize="1.375rem"
-          fontWeight={TYPOGRAPHY.fontWeightSemiBold}
-          padding={SPACING.spacing4}
-        >
-          {t(flowType === FLOWS.ATTACH ? 'try_again' : 'attach_and_retry')}
-        </StyledText>
-      </SmallButton>
+        buttonText={t(
+          flowType === FLOWS.ATTACH ? 'try_again' : 'attach_and_retry'
+        )}
+        buttonType="default"
+      />
     ) : (
       <>
         <SecondaryButton
