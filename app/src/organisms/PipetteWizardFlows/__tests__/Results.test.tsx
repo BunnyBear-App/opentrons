@@ -257,7 +257,7 @@ describe('Results', () => {
     }
     const { getByText, getByRole } = render(props)
     getByText('Pipette Successfully Attached and Calibrated')
-    getByRole('button', { name: 'Results_exit_isOnDevice' }).click()
+    getByRole('button', { name: 'SmallButton_Default' }).click()
     expect(props.proceed).toHaveBeenCalled()
   })
   it('renders the correct information when pipette wizard is a fail for attach flow on ODD', async () => {
@@ -272,7 +272,7 @@ describe('Results', () => {
     expect(getByLabelText('ot-alert')).toHaveStyle(
       `color: ${String(COLORS.errorEnabled)}`
     )
-    getByRole('button', { name: 'Results_tryAgain_onDevice' }).click()
+    getByRole('button', { name: 'SmallButton_Default' }).click()
     await act(() => pipettePromise)
     expect(mockRefetchPipette).toHaveBeenCalled()
   })
